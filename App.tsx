@@ -8,16 +8,17 @@
 import React, {useCallback, useState} from 'react';
 import {
   ColorValue,
-  SafeAreaView,
-  StatusBar,
+  Text,
   TextInput,
+  TextStyle,
   View,
+  ViewStyle,
   useColorScheme,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-const Input = ({
+const UncontrolledInput = ({
   color,
   placeholder,
 }: {
@@ -32,21 +33,55 @@ const Input = ({
     setIsFocused(true);
   }, []);
 
+  const focusStyle = {
+    color: isFocused ? color : '#777',
+  };
+
   return (
-    <TextInput
-      onBlur={onBlur}
-      onFocus={onFocus}
-      placeholder={placeholder}
-      style={[
-        {
-          padding: 10,
-          borderWidth: 1,
-          width: '80%',
-          borderColor: '#777',
-          color: isFocused ? color : undefined,
-        },
-      ]}
-    />
+    <View style={inputContainerStyle}>
+      <Text>Uncontrolled Input</Text>
+      <TextInput
+        onBlur={onBlur}
+        onFocus={onFocus}
+        placeholder={placeholder}
+        style={[inputStyle, focusStyle]}
+      />
+    </View>
+  );
+};
+
+const ControlledInput = ({
+  color,
+  placeholder,
+}: {
+  color: ColorValue;
+  placeholder: string;
+}) => {
+  const [value, setValue] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const onBlur = useCallback(() => {
+    setIsFocused(false);
+  }, []);
+  const onFocus = useCallback(() => {
+    setIsFocused(true);
+  }, []);
+
+  const focusStyle = {
+    color: isFocused ? color : '#777',
+  };
+
+  return (
+    <View style={inputContainerStyle}>
+      <Text>Controlled Input</Text>
+      <TextInput
+        onBlur={onBlur}
+        onFocus={onFocus}
+        onChangeText={setValue}
+        placeholder={placeholder}
+        value={value}
+        style={[inputStyle, focusStyle]}
+      />
+    </View>
   );
 };
 
@@ -58,20 +93,37 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={[backgroundStyle, {flex: 1}]}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <View style={[backgroundStyle, containerStyle]}>
+      <ControlledInput
+        color="rgb(242, 13, 13)"
+        placeholder="Type here (controlled)"
       />
-      <View
-        style={[
-          backgroundStyle,
-          {flex: 1, gap: 20, justifyContent: 'center', alignItems: 'center'},
-        ]}>
-        <Input color="rgb(242, 13, 13)" placeholder="Type here" />
-      </View>
-    </SafeAreaView>
+      <UncontrolledInput
+        color="rgb(13, 13, 242)"
+        placeholder="Type here (uncontrolled)"
+      />
+    </View>
   );
 }
+
+const containerStyle = {
+  flex: 1,
+  gap: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+} satisfies ViewStyle;
+
+const inputContainerStyle = {
+  gap: 5,
+  alignItems: 'center',
+  width: '100%',
+} satisfies ViewStyle;
+
+const inputStyle = {
+  padding: 10,
+  borderWidth: 1,
+  width: '80%',
+  borderColor: '#777',
+} satisfies TextStyle;
 
 export default App;
